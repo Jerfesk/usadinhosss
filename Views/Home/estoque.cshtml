@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "Usadinhos - Seu Estoque Online";
+}
+<div class="text-center">
+    <h1 class="display-4">🚗 Bem-vindo à Usadinhos!</h1>
+    <p>Aqui está uma visão do nosso estoque de veículos.</p>
+</div>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Estoque de Veículos - Usadinhos</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container mt-5">
+		<h2 class="mb-4">Nosso Estoque de Veículos</h2><br />
+		<form id="formConsulta" class="mb-3">
+			<div class="mb-3">
+				<label for="modeloVeiculo" class="form_label">Modelo do Veículo:</label>
+				<input type="text" class="form-control" id="modeloVeiculo" placeholder="Digite o modelo do veiculo" />
+			</div>
+			<button type="button" class="btn btn-primary" onclick="buscar()">Buscar</button>
+		</form>
+
+		<table class="table table-striped" id="tabelaResultado">
+			<thead>
+				<tr>
+					<th>Marca</th>
+					<th>Modelo</th>
+					<th>Ano</th>
+					<th>Cor</th>
+					<th>Preço</th>
+				</tr>
+			</thead>
+			<tbody id="corpo_tabela">
+			</tbody>
+		</table>
+	</div>
+
+	<script>
+
+		async function buscar(){
+			var modelo  = document.getElementById("modeloVeiculo").value;
+			var url     = "/Home/BuscarVeiculo?modelo=" + modelo;
+			var resp    = await fetch(url);
+			var meujson = await resp.json();
+
+			var linhas_tabela = "";
+			for (i=0;i<meujson.length; i++){
+				linhas_tabela += `
+					 <tr>
+						<td>${meujson[i]["marca"]}</td>
+						<td>${meujson[i]["modelo"]}</td>
+						<td>${meujson[i]["ano"]}</td>
+						<td>${meujson[i]["cor"]}</td>
+						<td>${meujson[i]["preco"]}</td>
+					</tr>`;
+			}
+
+			document.getElementById("corpo_tabela").innerHTML = linhas_tabela;
+		}
+
+	</script>
+
+</body>
+</html>
+

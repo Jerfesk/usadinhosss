@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Bem-vindo à Usadinhos!";
+}
+
+<div class="home-container">
+    <div class="logo-area">
+        <img src="~/imagem/carro-pisca.jpg" alt="Desenho de carro" class="car-image-blink" />
+        <h1 class="brand-name">Usadinhos</h1>
+        <p class="slogan">Seu carro novo está aqui!</p>
+    </div>
+
+    <div class="cta-section mt-5">
+        <p>Explore nosso estoque completo de veículos usados:</p>
+        <a asp-controller="Home" asp-action="estoque" class="btn btn-primary btn-lg">Ver Estoque</a>
+        @* O link acima aponta para a mesma página (Index). Vamos mudar ele depois para a página de estoque real. *@
+        @* Por enquanto, ele serve para mostrar como você ligaria a outra página. *@
+    </div>
+</div>
+
+<style>
+    .home-container {
+        text-align: center;
+        padding: 50px 20px;
+        background-color: #f8f9fa; /* Um fundo claro para destacar */
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-top: 50px;
+    }
+
+    .logo-area {
+        margin-bottom: 30px;
+    }
+
+    .car-image-blink {
+        width: 250px; /* Tamanho do desenho do carro */
+        height: auto;
+        margin-bottom: 20px;
+        /* ANIMAÇÃO DE PISCAR */
+        animation: blinkAnimation 1.5s infinite alternate; /* 1.5s de duração, repete infinito, alterna a direção */
+        -webkit-animation: blinkAnimation 1.5s infinite alternate; /* Para navegadores WebKit (Chrome, Safari) */
+        -moz-animation: blinkAnimation 1.5s infinite alternate; /* Para navegadores Mozilla (Firefox) */
+        animation: blinkAnimation 1.5s infinite alternate;
+    }
+
+    .brand-name {
+        font-size: 4em; /* Tamanho grande para o nome */
+        color: #007bff; /* Cor azul destacada */
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2); /* Sombra para destaque */
+        margin-bottom: 10px;
+    }
+
+    .slogan {
+        font-size: 1.5em;
+        color: #6c757d;
+    }
+
+    .cta-section {
+        margin-top: 40px;
+    }
+
