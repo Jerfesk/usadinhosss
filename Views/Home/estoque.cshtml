@@ -22,12 +22,12 @@
 				<label for="modeloVeiculo" class="form_label">Modelo do Veículo:</label>
 				<input type="text" class="form-control" id="modeloVeiculo" placeholder="Digite o modelo do veiculo" />
 			</div>
-			<button type="button" class="btn btn-primary" onclick="buscar()">Buscar</button>
+			<button type="button" class="btn btn-primary" onclick="buscar()">Buscar</button> <!--botão que aciona a função buscar()-->
 		</form>
 
 		<table class="table table-striped" id="tabelaResultado">
 			<thead>
-				<tr>
+				<tr>                     <!-- o que será mostrado em forma de lista-->
 					<th>Marca</th>
 					<th>Modelo</th>
 					<th>Ano</th>
@@ -42,16 +42,16 @@
 
 	<script>
 
-		async function buscar(){
-			var modelo  = document.getElementById("modeloVeiculo").value;
-			var url     = "/Home/BuscarVeiculo?modelo=" + modelo;
-			var resp    = await fetch(url);
-			var meujson = await resp.json();
+		async function buscar(){      //função tabela acionada por button acima
+			var modelo  = document.getElementById("modeloVeiculo").value;  // pega o valor digitado no input
+			var url     = "/Home/BuscarVeiculo?modelo=" + modelo;          // monta a url para fazer a requisição
+			var resp    = await fetch(url);                                // faz a requisição para o servidor
+			var meujson = await resp.json();                               // pega a resposta e converte para json
 
-			var linhas_tabela = "";
-			for (i=0;i<meujson.length; i++){
-				linhas_tabela += `
-					 <tr>
+			var linhas_tabela = "";                                   // inicializa a variável que vai conter as linhas da tabela
+			for (i=0;i<meujson.length; i++){                         // percorre o json retornado e informa os dados abaixo requisitado em cada linha
+				linhas_tabela += `                                  
+					 <tr>                                            
 						<td>${meujson[i]["marca"]}</td>
 						<td>${meujson[i]["modelo"]}</td>
 						<td>${meujson[i]["ano"]}</td>
@@ -60,7 +60,7 @@
 					</tr>`;
 			}
 
-			document.getElementById("corpo_tabela").innerHTML = linhas_tabela;
+			document.getElementById("corpo_tabela").innerHTML = linhas_tabela;  //exibe o conteudo selecionado de cada linha
 		}
 
 	</script>
