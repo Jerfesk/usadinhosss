@@ -114,6 +114,44 @@ namespace usadinhosss.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        [HttpPost]
+        public IActionResult Autenticar([FromBody] LoginRequest dados)
+        {
+            // A string de conexão deve ser a que criamos para tabela de adm
+            string connectionString = "Data Source=adm_usadinho.db";
+
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                // Consulta para verificar se existe um registro com o login e senha fornecidos
+                // O $ antes da string é para usar interpolação (variáveis direto na string)
+                string query = $"SELECT COUNT(*) FROM Adm WHERE login = @login AND senha = @senha";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    // Adiciona parâmetros para evitar SQL Injection (boa prática!)
+                    command.Parameters.AddWithValue("@login", dados.login);
+                    command.Parameters.AddWithValue("@senha", dados.senha);
+
+                    // Executa a consulta e pega o resultado (que será 1 se o usuário existir, ou 0 se não)
+                    long count = (long)command.ExecuteScalar();
+
+                    if (count > 0)
+                    {
+                        // Login OK: Retorna um status 200 (OK) com uma mensagem de sucesso
+                        return Ok(new { sucesso = true, mensagem = "Login efetuado com sucesso!" });
+                    }
+                    else
+                    {
+                        // Login Falhou: Retorna um status 401 (Não Autorizado) com a mensagem de erro
+                        // É melhor retornar 401 do que 200 com erro.
+                        return Unauthorized(new { sucesso = false, mensagem = "Login ou senha incorretos." });
+                    }
+                }
+            }
+        }
+
         public class Veiculo     //classe p/ representar os dados do veículo a serem inseridos no BD, criado na função inserirVeiculo
         {
             public String marca { get; set; }  //abaixo são os dados p/ armazenar no BD na tabela veiculos
@@ -121,6 +159,12 @@ namespace usadinhosss.Controllers
             public String ano { get; set; }
             public String cor { get; set; }
             public String preco { get; set; }
+        }
+
+        public class LoginRequest    // classe p/ requisitar os dados de login, criado na função Login
+        {
+            public string login { get; set; }
+            public string senha { get; set; }
         }
     }
 }

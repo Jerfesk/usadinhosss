@@ -5,3 +5,93 @@
 }
 <a!DOCTYPE html>
     <h1>Oi, testando!!!!...</h1>
+
+    @* Arquivo: Login.cshtml (ou o nome que sua estrutura exige) *@
+    @{
+        ViewData["Title"] = "Usadinhos - Login Administrativo";
+    }
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Login Administrativo</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <style>
+            .login-container {
+                max-width: 400px; /* Limita a largura do formulário para centralizar e melhorar a leitura */
+                margin: 100px auto 0;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                background-color: #ffffff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="login-container">
+                <h2 class="mb-4 text-center">🔐 Acesso Administrativo</h2>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="loginUsuario" class="form-label">Usuário (Login)</label>
+                        <input type="text" class="form-control" id="loginUsuario" required placeholder="Digite seu login" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="senhaUsuario" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="senhaUsuario" required placeholder="Digite sua senha" />
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-100" onclick="validarLogin()">Entrar</button>
+                </form>
+                <p class="mt-3 text-center">
+                    <a href="/">Voltar para a Home</a>
+                </p>
+            </div>
+        </div>
+
+        <script>
+            async function validarLogin() {
+                var login = document.getElementById("loginUsuario").value;
+                var senha = document.getElementById("senhaUsuario").value;
+
+                // 1. Coleta dos dados para envio ao servidor
+                var dadosLogin = {
+                    login: login,
+                    senha: senha
+                };
+
+                var url = "/Home/Autenticar"; // Rota que aponta para o novo método C#
+
+                try {
+                    // 2. Envia a requisição POST para o servidor
+                    var resposta = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-type": "application/json" },
+                        body: JSON.stringify(dadosLogin) // Converte o objeto em JSON string
+                    });
+
+                    // 3. Processa a resposta
+                    if (resposta.ok) { // Se o status HTTP for 200-299 (Login OK)
+                        var json_resp = await resposta.json();
+                        alert(json_resp.mensagem);
+
+                        // Redireciona para a página de Cadastro
+                        // Mude '/Home/Cadastro' para o caminho URL exato da sua página de cadastro.
+                        window.location.href = "/Home/Cadastro";
+                    } else { // Se o status for 401 (Unauthorized) ou outro erro
+                        var json_resp = await resposta.json();
+                        alert("❌ " + json_resp.mensagem);
+                        document.getElementById("senhaUsuario").value = "";
+                    }
+                } catch (erro) {
+                    // Trata erros de rede ou servidor inacessível
+                    alert("❌ Erro de conexão com o servidor. Tente novamente mais tarde.");
+                    console.error('Erro na requisição de login:', erro);
+                }
+            }
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
