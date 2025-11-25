@@ -37,32 +37,55 @@
                 <label for="preco" class="form-label">Preco</label>
                 <input type="text" class="form-control" id="preco" placeholder="Digite o preço" required />
             </div>
-            <div class="d-flex">
-                <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
-                <button type="button" class="btn btn-primary" onclick="salvar_dados()">Salvar</button>
+            <div class="d-flex gap-2">    <!--gap-2 adiciona um pequeno espaçamento entre os botões-->
+                <button type="button" class="btn btn-primary" onclick="salvar_dados()">Salvar</button>  
+                <button type="button" class="btn btn-secondary ms-auto" onclick="window.history.back()">Voltar</button>            
             </div>
         </form>
     </div>
     <script>
-        async function salvar_dados(){     //função assincrona para salvar os dado no BD, assim que clicar no botão salvar
+        function coletar_dados_form(){  //coletar dados de campos de um formulário HTML e armazená-los em um único objeto JavaScript chamado meu_json.
 
             var meu_json = {};  //coletar dados de campos de um formulário HTML e armazená-los em um único objeto JavaScript chamado meu_json.
                                 //var meu_json: Declara uma nova variável chamada meu_json no escopo atual. = {}: Inicializa essa variável como um objeto vazio ({})
+            //meu_json.id     = document.getElementById("idVeiculo").value;  // para ler o campo "oculto", pois é auto increment
             meu_json.marca  = document.getElementById("marca").value; //Busca o elemento HTML que possui o id="marca" e armazena seu valor atual na propriedade marca do objeto meu_json
             meu_json.modelo = document.getElementById("modelo").value; // repete o processo acima mudando o id. idem para os itens abaixo.
             meu_json.ano    = document.getElementById("ano").value;
             meu_json.cor    = document.getElementById("cor").value;
             meu_json.preco  = document.getElementById("preco").value;
 
-            var url = "/Home/inserirVeiculo/"; //variavel recebe a url, que esta em ("/Home/inserirVeiculo/") e envia pra função que carregara no BD
-            var res = await fetch(url,{  //variavel resposta, onde confirma que foi recebida as informaçoes, await aguarda o tempo de resposta do servidor
-				method:"POST",   //metodo usado é o POST, que envia dados ao servidor para criar ou atualizar um recurso.
-                headers: {"Content-type":"application/json"},  //cabeçario importante, indica o tipo e a aplicação dos dados
-                body: JSON.stringify(meu_json)  //converte em uma string JSON válida, HTTP só pode enviar dados como strings, e o JSON é o formato padronizado usado para comunicação entre cliente e servidor
-            });
+			return meu_json;  //retorna o objeto meu_json preenchido com os valores coletados do formulário.
 
-            var json_resp = await res.json();  // resposta do json, na função criada para inserir, se ok retona a mensagem de sucesso ou erro
-            alert(json_resp);                  // o alert é para mostrar a mensagem da resposta acima.
+        }
+
+            async function salvar_dados(){
+            // 1. Coleta os dados do formulário
+            var meu_json = coletar_dados_form();
+
+            // 2. Define a URL (deve ser a mesma que funcionava)
+            var url = "/Home/inserirVeiculo/";
+
+            try {
+                // 3. Executa o Fetch (Requisição HTTP POST)
+                var res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-type": "application/json" },
+                    body: JSON.stringify(meu_json)
+                });
+
+                // 4. Verifica o status HTTP e trata a resposta
+                if (!res.ok) {
+                    // Se a requisição não for bem-sucedida (ex: erro 404, 500)
+                    throw new Error(`Erro no servidor: ${res.status} ${res.statusText}`);
+                }
+
+                var json_resp = await res.json();
+                alert(json_resp); // Exibe a mensagem de sucesso ou erro retornada pelo Controller
+
+            } catch (erro) {
+                alert(`Falha ao salvar os dados. Detalhes: ${erro.message}`);
+            }
         }
     </script>
 

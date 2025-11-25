@@ -152,8 +152,10 @@ namespace usadinhosss.Controllers
             }
         }
 
+
         public class Veiculo     //classe p/ representar os dados do veículo a serem inseridos no BD, criado na função inserirVeiculo
         {
+            public int Id { get; set; }   //(deve ser 'Id' com 'I' maiúsculo para corresponder ao JSON)p/ inserir o id do veículo, chave primária no BD
             public String marca { get; set; }  //abaixo são os dados p/ armazenar no BD na tabela veiculos
             public String modelo { get; set; }
             public String ano { get; set; }
