@@ -1,0 +1,854 @@
+primeiro teste de adm usadinhos
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<a!DOCTYPE html>
+    <h1>Oi, testando!!!!...</h1>
+
+    @* Arquivo: Login.cshtml (ou o nome que sua estrutura exige) *@
+    @{
+        ViewData["Title"] = "Usadinhos - Login Administrativo";
+    }
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Login Administrativo</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <style>
+            .login-container {
+                max-width: 400px; /* Limita a largura do formulário para centralizar e melhorar a leitura */
+                margin: 100px auto 0;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                background-color: #ffffff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="login-container">
+                <h2 class="mb-4 text-center">🔐 Acesso Administrativo</h2>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="loginUsuario" class="form-label">Usuário (Login)</label>
+                        <input type="text" class="form-control" id="loginUsuario" required placeholder="Digite seu login" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="senhaUsuario" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="senhaUsuario" required placeholder="Digite sua senha" />
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-100" onclick="validarLogin()">Entrar</button>
+                </form>
+                <p class="mt-3 text-center">
+                    <a href="/">Voltar para a Home</a>
+                </p>
+            </div>
+        </div>
+
+        <script>
+            // Função para simular a validação do login
+            function validarLogin() {
+                var login = document.getElementById("loginUsuario").value;
+                var senha = document.getElementById("senhaUsuario").value;
+
+                // --- VALIDAÇÃO SIMPLES (LOCAL) ---
+                // Em um ambiente real, esta validação seria feita por uma requisição
+                // a um servidor (back-end) que checaria o BD.
+                var loginCorreto = "admin"; // Seu login de teste
+                var senhaCorreta = "12345"; // Sua senha de teste
+
+                if (login === loginCorreto && senha === senhaCorreta) {
+                    // Sucesso: Redireciona para a página de Cadastro
+                    // IMPORTANTE: Mude '/Home/Cadastro' para o caminho real da sua página de cadastro
+                    window.location.href = "/Home/Cadastro";
+                } else {
+                    // Erro: Exibe uma mensagem
+                    alert("❌ Login ou senha incorretos! Tente novamente.");
+                    document.getElementById("senhaUsuario").value = ""; // Limpa o campo de senha
+                }
+            }
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+segundo agora com conexão com BD, 
+
+OBSERVAÇÃO.... A MUDANÇA SÓ OCORRE NO SCRIPT... O RESTANTE FICA IGUAL....
+
+<script>
+    async function validarLogin() {
+        var login = document.getElementById("loginUsuario").value;
+        var senha = document.getElementById("senhaUsuario").value;
+
+        // 1. Coleta dos dados para envio ao servidor
+        var dadosLogin = {
+            login: login,
+            senha: senha
+        };
+
+        var url = "/Home/Autenticar"; // Rota que aponta para o novo método C#
+
+        try {
+            // 2. Envia a requisição POST para o servidor
+            var resposta = await fetch(url, {
+                method: "POST",
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify(dadosLogin) // Converte o objeto em JSON string
+            });
+
+            // 3. Processa a resposta
+            if (resposta.ok) { // Se o status HTTP for 200-299 (Login OK)
+                var json_resp = await resposta.json();
+                alert(json_resp.mensagem);
+                
+                // Redireciona para a página de Cadastro
+                // Mude '/Home/Cadastro' para o caminho URL exato da sua página de cadastro.
+                window.location.href = "/Home/Cadastro"; 
+            } else { // Se o status for 401 (Unauthorized) ou outro erro
+                var json_resp = await resposta.json();
+                alert("❌ " + json_resp.mensagem);
+                document.getElementById("senhaUsuario").value = "";
+            }
+        } catch (erro) {
+            // Trata erros de rede ou servidor inacessível
+            alert("❌ Erro de conexão com o servidor. Tente novamente mais tarde.");
+            console.error('Erro na requisição de login:', erro);
+        }
+    }
+</script>
+
+@@@@@@@@@@@@@@@@@@@ 25/11/2025  @@@@@@@@@@@@@@
+mudança no crud do cadastro de veículos
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cadastro de Veiculos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Cadastro de veículos</h2>
+        <form>
+
+            <div class="mb-3">
+                <label for="marca" class="form-label">Marca</label>
+                <input type="text" class="form-control" id="marca" placeholder="Digite a Marca" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="modelo" class="form-label">Modelo</label>
+                <input type="text" class="form-control" id="modelo" placeholder="Digite o modelo" required />
+            </div>
+            <div class="mb-3">
+                <label for="ano" class="form-label">Ano</label>
+                <input type="text" class="form-control" id="ano" placeholder="Digite o ano" required />
+            </div>
+            <div class="mb-3">
+                <label for="cor" class="form-label">Cor</label>
+                <input type="text" class="form-control" id="cor" placeholder="Digite a cor" required />
+            </div>
+            <div class="mb-3">
+                <label for="preco" class="form-label">Preco</label>
+                <input type="text" class="form-control" id="preco" placeholder="Digite o preço" required />
+            </div>
+            <div class="d-flex">
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
+                <button type="button" class="btn btn-primary" onclick="salvar_dados()">Salvar</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        async function salvar_dados(){     //função assincrona para salvar os dado no BD, assim que clicar no botão salvar
+
+            var meu_json = {};  //coletar dados de campos de um formulário HTML e armazená-los em um único objeto JavaScript chamado meu_json.
+                                //var meu_json: Declara uma nova variável chamada meu_json no escopo atual. = {}: Inicializa essa variável como um objeto vazio ({})
+            meu_json.marca  = document.getElementById("marca").value; //Busca o elemento HTML que possui o id="marca" e armazena seu valor atual na propriedade marca do objeto meu_json
+            meu_json.modelo = document.getElementById("modelo").value; // repete o processo acima mudando o id. idem para os itens abaixo.
+            meu_json.ano    = document.getElementById("ano").value;
+            meu_json.cor    = document.getElementById("cor").value;
+            meu_json.preco  = document.getElementById("preco").value;
+
+            var url = "/Home/inserirVeiculo/"; //variavel recebe a url, que esta em ("/Home/inserirVeiculo/") e envia pra função que carregara no BD
+            var res = await fetch(url,{  //variavel resposta, onde confirma que foi recebida as informaçoes, await aguarda o tempo de resposta do servidor
+				method:"POST",   //metodo usado é o POST, que envia dados ao servidor para criar ou atualizar um recurso.
+                headers: {"Content-type":"application/json"},  //cabeçario importante, indica o tipo e a aplicação dos dados
+                body: JSON.stringify(meu_json)  //converte em uma string JSON válida, HTTP só pode enviar dados como strings, e o JSON é o formato padronizado usado para comunicação entre cliente e servidor
+            });
+
+            var json_resp = await res.json();  // resposta do json, na função criada para inserir, se ok retona a mensagem de sucesso ou erro
+            alert(json_resp);                  // o alert é para mostrar a mensagem da resposta acima.
+        }
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+DELETEI DE CADASTRO !!!!!!!
+
+abaixo de <form>
+
+  <input type="hidden" id="idVeiculo" value="" />  <!-- isto p/ que o campo id dique oculto o usuario não digita é auto increment-->
+
+e os botoes
+
+<div class="d-flex gap-2">    <!--gap-2 adiciona um pequeno espaçamento entre os botões-->
+    
+    <button type="button" class="btn btn-info text-white" onclick="listar_dados()">Listar</button>  <!-- btn-info (azul claro/ciano, text-white para o texto ficar branco)-->
+    <button type="button" class="btn btn-warning" onclick="alterar_dados()">Alterar</button>        <!-- btn-warning (amarelo/laranja)-->
+    <button type="button" class="btn btn-danger" onclick="deletar_dados()">Deletar</button>         <!-- btn-danger (vermelho)-->
+              
+</div>
+
+
+
+
+ // ----------------------------------------------------
+ // FUNÇÕES DE AÇÃO (Simplificadas)
+ // ----------------------------------------------------
+
+
+            async function enviar_requisicao(url, metodo, dados = null) {  //envio de requisição ao servidor
+			try {                                     // Bloco try-catch para capturar erros durante a requisição
+				const opcoes = {                     // Configurações da requisição
+					method: metodo,                  // Método HTTP (GET, POST, PUT, DELETE)
+					headers: { "Content-type": "application/json" }  // Cabeçalhos HTTP, o corpo da requisição é JSON
+                };
+
+				if (dados) {                               // Se houver dados para enviar (não nulo)
+					opcoes.body = JSON.stringify(dados);   // Converte o objeto dados em uma string JSON e atribui ao corpo da requisição
+                }
+
+                const res = await fetch(url, opcoes);      // Aguarda a resposta do servidor
+
+                if (!res.ok) {                            // Verifica se a resposta foi bem-sucedida (status 200-299)
+                    throw new Error(`Erro de rede: ${res.status} ${res.statusText}`);   //erro se o status HTTP indicar falha
+                }
+
+                const json_resp = await res.json();    // Aguarda a conversão da resposta para JSON
+
+                alert(json_resp);           // Mostra a mensagem de sucesso ou erro retornada pelo Controller
+                return json_resp;           // Retorna a resposta para uso futuro
+
+            } catch (erro) {
+                alert(`Falha na operação: ${erro.message}`);
+                return null;
+            }
+        }
+
+       
+
+
+=============================================
+teste do clone em cadastro
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cadastro de Veiculos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Cadastro de veículos</h2>
+        <form>
+
+            <div class="mb-3">
+                <label for="marca" class="form-label">Marca</label>
+                <input type="text" class="form-control" id="marca" placeholder="Digite a Marca" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="modelo" class="form-label">Modelo</label>
+                <input type="text" class="form-control" id="modelo" placeholder="Digite o modelo" required />
+            </div>
+            <div class="mb-3">
+                <label for="ano" class="form-label">Ano</label>
+                <input type="text" class="form-control" id="ano" placeholder="Digite o ano" required />
+            </div>
+            <div class="mb-3">
+                <label for="cor" class="form-label">Cor</label>
+                <input type="text" class="form-control" id="cor" placeholder="Digite a cor" required />
+            </div>
+            <div class="mb-3">
+                <label for="preco" class="form-label">Preco</label>
+                <input type="text" class="form-control" id="preco" placeholder="Digite o preço" required />
+            </div>
+            <div class="d-flex gap-2">    <!--gap-2 adiciona um pequeno espaçamento entre os botões-->
+                <button type="button" class="btn btn-primary" onclick="salvar_dados()">Salvar</button>  
+                <button type="button" class="btn btn-secondary ms-auto" onclick="window.history.back()">Voltar</button>            
+            </div>
+        </form>
+    </div>
+    <script>
+        function coletar_dados_form(){  //coletar dados de campos de um formulário HTML e armazená-los em um único objeto JavaScript chamado meu_json.
+
+            var meu_json = {};  //coletar dados de campos de um formulário HTML e armazená-los em um único objeto JavaScript chamado meu_json.
+                                //var meu_json: Declara uma nova variável chamada meu_json no escopo atual. = {}: Inicializa essa variável como um objeto vazio ({})
+            //meu_json.id     = document.getElementById("idVeiculo").value;  // para ler o campo "oculto", pois é auto increment
+            meu_json.marca  = document.getElementById("marca").value; //Busca o elemento HTML que possui o id="marca" e armazena seu valor atual na propriedade marca do objeto meu_json
+            meu_json.modelo = document.getElementById("modelo").value; // repete o processo acima mudando o id. idem para os itens abaixo.
+            meu_json.ano    = document.getElementById("ano").value;
+            meu_json.cor    = document.getElementById("cor").value;
+            meu_json.preco  = document.getElementById("preco").value;
+
+			return meu_json;  //retorna o objeto meu_json preenchido com os valores coletados do formulário.
+
+        }
+
+            async function salvar_dados(){
+            // 1. Coleta os dados do formulário
+            var meu_json = coletar_dados_form();
+
+            // 2. Define a URL (deve ser a mesma que funcionava)
+            var url = "/Home/inserirVeiculo/";
+
+            try {
+                // 3. Executa o Fetch (Requisição HTTP POST)
+                var res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-type": "application/json" },
+                    body: JSON.stringify(meu_json)
+                });
+
+                // 4. Verifica o status HTTP e trata a resposta
+                if (!res.ok) {
+                    // Se a requisição não for bem-sucedida (ex: erro 404, 500)
+                    throw new Error(`Erro no servidor: ${res.status} ${res.statusText}`);
+                }
+
+                var json_resp = await res.json();
+                alert(json_resp); // Exibe a mensagem de sucesso ou erro retornada pelo Controller
+
+            } catch (erro) {
+                alert(`Falha ao salvar os dados. Detalhes: ${erro.message}`);
+            }
+        }
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+ 
+
+ // 2. LISTAR
+ function listar_dados() {
+     // Ação mais comum é redirecionar para a página de listagem
+     window.location.href = "/Home/estoque";
+ }
+
+ // 3. ALTERAR (Usando PUT para atualização)
+ function alterar_dados() {
+     const dados = coletar_dados_form();
+     if (!confirm(`Confirma a ALTERAÇÃO do veículo: ${dados.modelo}?`)) return;
+
+     // URL para o método de alteração no Controller
+     enviar_requisicao("/Home/AlterarVeiculo", "PUT", dados);
+ }
+
+ // 4. DELETAR (Usando DELETE)
+ function deletar_dados() {
+     const dados = coletar_dados_form();
+     // Pega o ID do campo oculto
+     const identificador = dados.id;
+
+     // Valida se o ID está preenchido (só é preenchido se você carregar um veículo antes)
+     if (identificador == null || identificador === "" || identificador === "0") {
+         alert("Preencha o ID do veículo para deletar (é necessário carregar um veículo para isso)!");
+         return;
+     }
+
+     if (!confirm(`Tem certeza que deseja DELETAR o veículo de ID: ${identificador}?`)) return;
+
+     // 🚨 A URL DEVE BATER com a rota C# [Route("Home/DeletarVeiculoId/{id}")]
+     const url_delete = `/Home/DeletarVeiculoId/${identificador}`;
+
+     // Chama a função que envia a requisição DELETE
+     enviar_requisicao(url_delete, "DELETE");
+ }
+
+
+
+DELETEI DE HOME CONTROLER !!!!!!!!!!!!!!!
+
+
+[HttpPut] // O JavaScript está enviando PUT, então usamos PUT aqui
+public IActionResult AlterarVeiculo([FromBody] Veiculo veiculoAtualizado)
+{
+    // Verifica se o ID é válido. Alterar sem ID é impossível.
+    if (veiculoAtualizado.Id <= 0)
+    {
+        return Json("Erro: ID do veículo é inválido para alteração.");
+    }
+
+    String stringConnection = "Data Source=usadinhosss.bd.db; Version = 3; New = True; Compress = True; ";
+
+    try
+    {
+        // Comando SQL de UPDATE, usando o ID na cláusula WHERE
+        string cmdUpdate = $@"
+    UPDATE veiculos 
+    SET marca = '{veiculoAtualizado.marca}',
+        modelo = '{veiculoAtualizado.modelo}',
+        ano = '{veiculoAtualizado.ano}',
+        cor = '{veiculoAtualizado.cor}',
+        preco = '{veiculoAtualizado.preco}'
+    WHERE Id = {veiculoAtualizado.Id}"; // Usa o ID para saber qual linha alterar
+
+        using (SQLiteConnection sqlite_conn = new SQLiteConnection(stringConnection))
+        {
+            sqlite_conn.Open();
+            using (SQLiteCommand comandoSQL = new SQLiteCommand(cmdUpdate, sqlite_conn))
+            {
+                int qtd_linhas_alteradas = comandoSQL.ExecuteNonQuery();
+
+                if (qtd_linhas_alteradas > 0)
+                    return Json("Dados alterados com sucesso!");
+                else
+                    return Json("Alteração falhou. ID não encontrado ou dados idênticos.");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        return Json($"Erro ao alterar: {ex.Message}");
+    }
+}
+
+[HttpDelete]
+[Route("Home/DeletarVeiculoId/{id}")]
+public IActionResult DeletarVeiculoId(int id) // Agora usa a variável 'id'
+{
+    // 1. Não precisa do String.IsNullOrEmpty, pois o 'id' é um inteiro
+    if (id <= 0)
+    {
+        return Json("Erro: ID do veículo é inválido para exclusão.");
+    }
+
+    String stringConnection = "Data Source=usadinhosss.bd.db; Version = 3; New = True; Compress = True; ";
+
+    try
+    {
+        // 2. Comando SQL Corrigido: DELETAR pelo ID recebido.
+        // Assumindo que o nome da coluna no seu DB é 'id' (minúsculo ou maiúsculo)
+        // Usaremos 'id' para consistência, mas confirme o nome exato.
+        string cmdDelete = $"DELETE FROM veiculos WHERE id = {id}"; // <--- USANDO A VARIÁVEL 'id'
+
+        using (SQLiteConnection sqlite_conn = new SQLiteConnection(stringConnection))
+        {
+            sqlite_conn.Open();
+            using (SQLiteCommand comandoSQL = new SQLiteCommand(cmdDelete, sqlite_conn))
+            {
+                int qtd_linhas_deletadas = comandoSQL.ExecuteNonQuery();
+
+                if (qtd_linhas_deletadas > 0)
+                    // 3. Resposta corrigida para mostrar o ID
+                    return Json($"Veículo de ID '{id}' deletado com sucesso!");
+                else
+                    return Json("Exclusão falhou. Nenhum veículo encontrado com esse ID.");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        return Json($"Erro ao deletar: {ex.Message}");
+    }
+}
+      
+++++++++++++++++++= resposta do clone pelo gpt ótimo...+++++++++++++++++++
+Olá\! Seu projeto de veículos usados em ASP.NET Core MVC está bem estruturado e você já implementou as funcionalidades básicas de **Cadastro (Inserir)** e **Estoque (Buscar)**. Parabéns\! 🥳
+
+Para adicionar as funcionalidades de **Listar/Visualizar por ID**, **Alterar (Update)** e **Deletar (Delete)**, você precisará fazer alterações no seu **`HomeController.cs`** (para as novas ações CRUD) e no **`cadastro.cshtml`** (para a interface de listagem, seleção e botões de ação).
+
+Abaixo estão as alterações necessárias para tornar seu site totalmente funcional.
+
+-----
+
+## 1\. ⚙️ Alterações no `HomeController.cs`
+
+No seu `HomeController.cs`, você precisará adicionar um campo `id` na classe `Veiculo` e criar três novas ações: `ListarVeiculos`, `AlterarVeiculo` e `DeletarVeiculo`.
+
+### Classe `Veiculo` Atualizada
+
+A classe `Veiculo` deve incluir o campo `id` para as operações de Alteração e Deleção.
+
+```csharp
+public class Veiculo // Alterada
+{
+    // Adicionar a propriedade Id para ser usada em listagem, alteração e deleção
+    public int id { get; set; } // O nome minúsculo é mantido, mas o tipo é int.
+    public String marca { get; set; }
+    public String modelo { get; set; }
+    public String ano { get; set; }
+    public String cor { get; set; }
+    public String preco { get; set; }
+}
+```
+
+### Novas Ações no Controller
+
+Aqui estão as novas ações para Listar, Alterar e Deletar. Note que a ação `BuscarVeiculo` também foi ajustada para incluir o `id`.
+
+```csharp
+// (Ação ListarVeiculos - pode ser a mesma lógica do BuscarVeiculo sem filtro)
+// Vamos usar a BuscarVeiculo ajustada para listar todos quando não há modelo.
+// Ação BuscarVeiculo AJUSTADA para incluir o ID na leitura:
+public IActionResult BuscarVeiculo(String modelo) //função p/ buscar veículos no BD, por modelo ou todos se o modelo for vazio
+{
+    // ... (código para construir a string select permanece o mesmo) ...
+
+    String select = "";
+    if (modelo == null || modelo.Equals(""))
+    {
+        select = "select * from veiculos";
+    }
+    else
+    {
+        select = "select * from veiculos where modelo like '%" + modelo + "%'";
+    }
+
+    String stringConnection = "Data Source=usadinhos3clone.db; Version = 3; New = True; Compress = True; ";
+    SQLiteConnection sqlite_conn = new SQLiteConnection(stringConnection);
+    sqlite_conn.Open();
+    SQLiteCommand comandoSQL = new SQLiteCommand(select, sqlite_conn);
+    SQLiteDataReader dr = comandoSQL.ExecuteReader();
+    List<Veiculo> listaVeiculos = new List<Veiculo>();
+
+    while (dr.Read())
+    {
+        Veiculo v = new Veiculo();
+        v.id = Convert.ToInt32(dr["id"]); // <-- NOVIDADE: Ler o ID do banco de dados
+        v.marca = dr["marca"].ToString();
+        v.modelo = dr["modelo"].ToString();
+        v.ano = dr["ano"].ToString();
+        v.cor = dr["cor"].ToString();
+        v.preco = dr["preco"].ToString();
+        listaVeiculos.Add(v);
+    }
+
+    sqlite_conn.Close();
+    return Json(listaVeiculos);
+}
+
+// 🆕 Ação para Alterar Veículo
+[HttpPost]
+public IActionResult AlterarVeiculo([FromBody] Veiculo veiculos)
+{
+    // Usamos parâmetros na query para evitar SQL Injection. Isso é uma PRÁTICA RECOMENDADA.
+    String cmdupdate = "UPDATE veiculos SET marca=@marca, modelo=@modelo, ano=@ano, cor=@cor, preco=@preco WHERE id=@id";
+    
+    String stringConnection = "Data Source=usadinhos3clone.db; Version = 3; New = True; Compress = True; ";
+    SQLiteConnection sqlite_conn = new SQLiteConnection(stringConnection);
+    sqlite_conn.Open();
+
+    SQLiteCommand comandoSQL = new SQLiteCommand(cmdupdate, sqlite_conn);
+    // Adicionando os parâmetros com os valores do objeto 'veiculos'
+    comandoSQL.Parameters.AddWithValue("@id", veiculos.id);
+    comandoSQL.Parameters.AddWithValue("@marca", veiculos.marca);
+    comandoSQL.Parameters.AddWithValue("@modelo", veiculos.modelo);
+    comandoSQL.Parameters.AddWithValue("@ano", veiculos.ano);
+    comandoSQL.Parameters.AddWithValue("@cor", veiculos.cor);
+    comandoSQL.Parameters.AddWithValue("@preco", veiculos.preco);
+    
+    int qtd_linhas_alteradas = comandoSQL.ExecuteNonQuery();
+
+    string resposta = (qtd_linhas_alteradas > 0) 
+        ? "Dados alterados com sucesso!!!" 
+        : "Não foi possível alterar o veículo (ID não encontrado ou erro!!!)";
+
+    sqlite_conn.Close();
+    return Json(resposta);
+}
+
+// 🆕 Ação para Deletar Veículo
+[HttpPost] // O POST é mais seguro e recomendado para ações que modificam dados
+public IActionResult DeletarVeiculo([FromBody] int id) // Espera um JSON contendo apenas o ID
+{
+    // Usando parâmetro para segurança.
+    String cmddelete = "DELETE FROM veiculos WHERE id = @id";
+
+    String stringConnection = "Data Source=usadinhos3clone.db; Version = 3; New = True; Compress = True; ";
+    SQLiteConnection sqlite_conn = new SQLiteConnection(stringConnection);
+    sqlite_conn.Open();
+
+    SQLiteCommand comandoSQL = new SQLiteCommand(cmddelete, sqlite_conn);
+    comandoSQL.Parameters.AddWithValue("@id", id); // Passa o ID para o comando
+    
+    int qtd_linhas_deletadas = comandoSQL.ExecuteNonQuery();
+
+    string resposta = (qtd_linhas_deletadas > 0) 
+        ? "Veículo deletado com sucesso!!!" 
+        : "Não foi possível deletar o veículo (ID não encontrado ou erro!!!)";
+
+    sqlite_conn.Close();
+    return Json(resposta);
+}
+```
+
+-----
+
+## 2\. 📝 Alterações no `estoque.cshtml`
+
+A página `estoque.cshtml` já está funcional, mas ela é focada em **Busca** e **Visualização** em formato de tabela. O objetivo de Listar, Alterar e Deletar geralmente se encaixa melhor na página de **Cadastro** (onde as operações de manutenção de dados são feitas).
+
+Portanto, **não é necessário alterar o `estoque.cshtml`** além de garantir que a função `buscar()` funcione com a nova estrutura que retorna o campo `id`, o que já foi feito na `BuscarVeiculo` ajustada no Controller.
+
+-----
+
+## 3\. 💾 Alterações no `cadastro.cshtml`
+
+A página `cadastro.cshtml` será transformada para ter um **Formulário de Cadastro/Edição** e uma **Tabela de Listagem** com os botões de ação (Selecionar para Alterar e Deletar).
+
+### Estrutura do `cadastro.cshtml`
+
+O novo `cadastro.cshtml` terá a listagem completa dos veículos (sem filtro) no topo e o formulário abaixo, que será preenchido ao selecionar um item da lista.
+
+```html
+@{
+    ViewData["Title"] = "Cadastro e Manutenção de Veículos";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cadastro de Veiculos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body onload="listar_veiculos()"> <div class="container mt-5">
+        <h2 class="mb-4">Manutenção de Veículos 🚗</h2>
+        <div class="alert alert-info" id="mensagem_id" role="alert" style="display:none;">
+            Selecionado Veículo ID: <span id="id_selecionado"></span>
+        </div>
+        
+        <h3 class="mt-4">Veículos Cadastrados</h3>
+        <table class="table table-striped table-hover" id="tabelaLista">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Ano</th>
+                    <th>Cor</th>
+                    <th>Preço</th>
+                    <th>Ações</th> </tr>
+            </thead>
+            <tbody id="corpo_tabela_lista">
+            </tbody>
+        </table>
+        
+        <h3 class="mt-5 mb-4">Novo Cadastro ou Edição</h3>
+        <form id="formCadastro">
+            <input type="hidden" id="idVeiculo" value="0" /> <div class="mb-3">
+                <label for="marca" class="form-label">Marca</label>
+                <input type="text" class="form-control" id="marca" placeholder="Digite a Marca" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="modelo" class="form-label">Modelo</label>
+                <input type="text" class="form-control" id="modelo" placeholder="Digite o modelo" required />
+            </div>
+            <div class="mb-3">
+                <label for="ano" class="form-label">Ano</label>
+                <input type="text" class="form-control" id="ano" placeholder="Digite o ano" required />
+            </div>
+            <div class="mb-3">
+                <label for="cor" class="form-label">Cor</label>
+                <input type="text" class="form-control" id="cor" placeholder="Digite a cor" required />
+            </div>
+            <div class="mb-3">
+                <label for="preco" class="form-label">Preço</label>
+                <input type="text" class="form-control" id="preco" placeholder="Digite o preço" required />
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success" onclick="salvar_dados()">Salvar / Alterar</button>
+                <button type="button" class="btn btn-danger" onclick="deletar_dados()">Deletar Selecionado</button>
+                <button type="button" class="btn btn-secondary" onclick="limpar_form()">Novo Cadastro</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        // Função para limpar o formulário e preparar para um novo cadastro
+        function limpar_form() {
+            document.getElementById("idVeiculo").value = "0";
+            document.getElementById("marca").value = "";
+            document.getElementById("modelo").value = "";
+            document.getElementById("ano").value = "";
+            document.getElementById("cor").value = "";
+            document.getElementById("preco").value = "";
+            document.getElementById("mensagem_id").style.display = "none";
+        }
+
+        // Função para preencher o formulário ao clicar em um item da tabela
+        function selecionar_veiculo(id, marca, modelo, ano, cor, preco) {
+            document.getElementById("idVeiculo").value = id;
+            document.getElementById("marca").value = marca;
+            document.getElementById("modelo").value = modelo;
+            document.getElementById("ano").value = ano;
+            document.getElementById("cor").value = cor;
+            document.getElementById("preco").value = preco;
+            
+            // Atualiza a mensagem de ID selecionado
+            document.getElementById("id_selecionado").textContent = id;
+            document.getElementById("mensagem_id").style.display = "block";
+            window.scrollTo(0, 0); // Opcional: rola a página para o topo
+        }
+        
+        // 1. Função para Listar Veículos (Usando a mesma lógica do estoque, mas sem filtro)
+        async function listar_veiculos() {
+            // Requisita todos os veículos (modelo vazio)
+            var url = "/Home/BuscarVeiculo"; 
+            var resp = await fetch(url);
+            var meujson = await resp.json();
+
+            var linhas_tabela = "";
+            for (i = 0; i < meujson.length; i++) {
+                var v = meujson[i];
+                linhas_tabela += `
+                    <tr>
+                        <td>${v.id}</td>
+                        <td>${v.marca}</td>
+                        <td>${v.modelo}</td>
+                        <td>${v.ano}</td>
+                        <td>${v.cor}</td>
+                        <td>${v.preco}</td>
+                        <td>
+                            <button type="button" class="btn btn-info btn-sm"
+                                onclick="selecionar_veiculo('${v.id}', '${v.marca}', '${v.modelo}', '${v.ano}', '${v.cor}', '${v.preco}')">
+                                Selecionar
+                            </button>
+                        </td>
+                    </tr>`;
+            }
+
+            document.getElementById("corpo_tabela_lista").innerHTML = linhas_tabela;
+        }
+
+        // 2. Função para Coletar Dados (ajustada para incluir o ID)
+        function coletar_dados_form() {
+            var meu_json = {};
+            meu_json.id     = parseInt(document.getElementById("idVeiculo").value); // Coleta o ID
+            meu_json.marca  = document.getElementById("marca").value;
+            meu_json.modelo = document.getElementById("modelo").value;
+            meu_json.ano    = document.getElementById("ano").value;
+            meu_json.cor    = document.getElementById("cor").value;
+            meu_json.preco  = document.getElementById("preco").value;
+
+            return meu_json;
+        }
+
+        // 3. Função Salvar/Alterar (Determina se é Insert ou Update)
+        async function salvar_dados() {
+            var meu_json = coletar_dados_form();
+            var is_insert = meu_json.id === 0; // Se ID for 0, é INSERT. Se for > 0, é UPDATE.
+
+            var url = is_insert ? "/Home/inserirVeiculo/" : "/Home/AlterarVeiculo/";
+            
+            try {
+                var res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-type": "application/json" },
+                    body: JSON.stringify(meu_json)
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Erro no servidor: ${res.status} ${res.statusText}`);
+                }
+
+                var json_resp = await res.json();
+                alert(json_resp); 
+                
+                limpar_form();        // Limpa o formulário
+                listar_veiculos();    // Recarrega a lista para mostrar a alteração/inclusão
+
+            } catch (erro) {
+                alert(`Falha ao salvar os dados. Detalhes: ${erro.message}`);
+            }
+        }
+        
+        // 4. Função Deletar
+        async function deletar_dados() {
+            var id_para_deletar = parseInt(document.getElementById("idVeiculo").value);
+
+            if (id_para_deletar === 0) {
+                alert("Nenhum veículo selecionado para deletar. Por favor, selecione um na lista.");
+                return;
+            }
+
+            if (!confirm(`Tem certeza que deseja DELETAR o veículo com ID: ${id_para_deletar}?`)) {
+                return; // Se o usuário cancelar, não faz nada
+            }
+
+            var url = "/Home/DeletarVeiculo/";
+
+            try {
+                var res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-type": "application/json" },
+                    body: JSON.stringify(id_para_deletar) // Envia apenas o ID como JSON puro
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Erro no servidor: ${res.status} ${res.statusText}`);
+                }
+
+                var json_resp = await res.json();
+                alert(json_resp); 
+
+                limpar_form();        // Limpa o formulário
+                listar_veiculos();    // Recarrega a lista
+
+            } catch (erro) {
+                alert(`Falha ao deletar os dados. Detalhes: ${erro.message}`);
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+```
+
+Agora seu sistema de CRUD (Create, Read, Update, Delete) está completo e o `cadastro.cshtml` se tornou a sua página de manutenção de veículos\!
+
+Gostaria de ajuda para criar um **layout** (como o `_Layout.cshtml`) para ter um menu de navegação entre as páginas `Index`, `Estoque` e `Cadastro`?
+
+
++++++++++++++++++++ tentando resolver=========

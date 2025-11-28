@@ -1,8 +1,7 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Cadastro e Manutenção de Veículos";
 }
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -11,12 +10,33 @@
     <title>Cadastro de Veiculos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
-<body>
+<body onload="listar_veiculos()">
     <div class="container mt-5">
-        <h2 class="mb-4">Cadastro de veículos</h2>
-        <form>
+        <h2 class="mb-4">Manutenção de Veículos 🚗</h2>
+        <div class="alert alert-info" id="mensagem_id" role="alert" style="display:none;">
+            Selecionado Veículo ID: <span id="id_selecionado"></span>
+        </div>
 
-            <div class="mb-3">
+        <h3 class="mt-4">Veículos Cadastrados</h3>
+        <table class="table table-striped table-hover" id="tabelaLista">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Ano</th>
+                    <th>Cor</th>
+                    <th>Preço</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="corpo_tabela_lista">
+            </tbody>
+        </table>
+
+        <h3 class="mt-5 mb-4">Novo Cadastro ou Edição</h3>
+        <form id="formCadastro">
+            <input type="hidden" id="idVeiculo" value="0" /> <div class="mb-3">
                 <label for="marca" class="form-label">Marca</label>
                 <input type="text" class="form-control" id="marca" placeholder="Digite a Marca" required />
             </div>
@@ -34,62 +54,153 @@
                 <input type="text" class="form-control" id="cor" placeholder="Digite a cor" required />
             </div>
             <div class="mb-3">
-                <label for="preco" class="form-label">Preco</label>
+                <label for="preco" class="form-label">Preço</label>
                 <input type="text" class="form-control" id="preco" placeholder="Digite o preço" required />
             </div>
-            <div class="d-flex gap-2">    <!--gap-2 adiciona um pequeno espaçamento entre os botões-->
-                <button type="button" class="btn btn-primary" onclick="salvar_dados()">Salvar</button>  
-                <button type="button" class="btn btn-secondary ms-auto" onclick="window.history.back()">Voltar</button>            
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success" onclick="salvar_dados()">Salvar / Alterar</button>
+                <button type="button" class="btn btn-danger" onclick="deletar_dados()">Deletar Selecionado</button>
+                <button type="button" class="btn btn-secondary" onclick="limpar_form()">Novo Cadastro</button>
             </div>
         </form>
     </div>
     <script>
-        function coletar_dados_form(){  //coletar dados de campos de um formulário HTML e armazená-los em um único objeto JavaScript chamado meu_json.
+        // Função para limpar o formulário e preparar para um novo cadastro
+        function limpar_form() {
+            document.getElementById("idVeiculo").value = "0";
+            document.getElementById("marca").value = "";
+            document.getElementById("modelo").value = "";
+            document.getElementById("ano").value = "";
+            document.getElementById("cor").value = "";
+            document.getElementById("preco").value = "";
+            document.getElementById("mensagem_id").style.display = "none";
+        }
 
-            var meu_json = {};  //coletar dados de campos de um formulário HTML e armazená-los em um único objeto JavaScript chamado meu_json.
-                                //var meu_json: Declara uma nova variável chamada meu_json no escopo atual. = {}: Inicializa essa variável como um objeto vazio ({})
-            //meu_json.id     = document.getElementById("idVeiculo").value;  // para ler o campo "oculto", pois é auto increment
-            meu_json.marca  = document.getElementById("marca").value; //Busca o elemento HTML que possui o id="marca" e armazena seu valor atual na propriedade marca do objeto meu_json
-            meu_json.modelo = document.getElementById("modelo").value; // repete o processo acima mudando o id. idem para os itens abaixo.
+        // Função para preencher o formulário ao clicar em um item da tabela
+        function selecionar_veiculo(id, marca, modelo, ano, cor, preco) {
+            document.getElementById("idVeiculo").value = id;
+            document.getElementById("marca").value = marca;
+            document.getElementById("modelo").value = modelo;
+            document.getElementById("ano").value = ano;
+            document.getElementById("cor").value = cor;
+            document.getElementById("preco").value = preco;
+
+            // Atualiza a mensagem de ID selecionado
+            document.getElementById("id_selecionado").textContent = id;
+            document.getElementById("mensagem_id").style.display = "block";
+            window.scrollTo(0, 0); // Opcional: rola a página para o topo
+        }
+
+        // 1. Função para Listar Veículos (Usando a mesma lógica do estoque, mas sem filtro)
+        async function listar_veiculos() {
+            // Requisita todos os veículos (modelo vazio)
+            var url = "/Home/BuscarVeiculo";
+            var resp = await fetch(url);
+            var meujson = await resp.json();
+
+            var linhas_tabela = "";
+            for (i = 0; i < meujson.length; i++) {
+                var v = meujson[i];
+                linhas_tabela += `
+                    <tr>
+                        <td>${v.id}</td>
+                        <td>${v.marca}</td>
+                        <td>${v.modelo}</td>
+                        <td>${v.ano}</td>
+                        <td>${v.cor}</td>
+                        <td>${v.preco}</td>
+                        <td>
+                            <button type="button" class="btn btn-info btn-sm"
+                                onclick="selecionar_veiculo('${v.id}', '${v.marca}', '${v.modelo}', '${v.ano}', '${v.cor}', '${v.preco}')">
+                                Selecionar
+                            </button>
+                        </td>
+                    </tr>`;
+            }
+
+            document.getElementById("corpo_tabela_lista").innerHTML = linhas_tabela;
+        }
+
+        // 2. Função para Coletar Dados (ajustada para incluir o ID)
+        function coletar_dados_form() {
+            var meu_json = {};
+            meu_json.id     = parseInt(document.getElementById("idVeiculo").value); // Coleta o ID
+            meu_json.marca  = document.getElementById("marca").value;
+            meu_json.modelo = document.getElementById("modelo").value;
             meu_json.ano    = document.getElementById("ano").value;
             meu_json.cor    = document.getElementById("cor").value;
             meu_json.preco  = document.getElementById("preco").value;
 
-			return meu_json;  //retorna o objeto meu_json preenchido com os valores coletados do formulário.
-
+            return meu_json;
         }
 
-            async function salvar_dados(){
-            // 1. Coleta os dados do formulário
+         // 3. Função Salvar/Alterar (Determina se é Insert ou Update)
+        async function salvar_dados() {
             var meu_json = coletar_dados_form();
+            var is_insert = meu_json.id === 0; // Se ID for 0, é INSERT. Se for > 0, é UPDATE.
 
-            // 2. Define a URL (deve ser a mesma que funcionava)
-            var url = "/Home/inserirVeiculo/";
+            var url = is_insert ? "/Home/inserirVeiculo/" : "/Home/AlterarVeiculo/";
 
             try {
-                // 3. Executa o Fetch (Requisição HTTP POST)
                 var res = await fetch(url, {
                     method: "POST",
                     headers: { "Content-type": "application/json" },
                     body: JSON.stringify(meu_json)
                 });
 
-                // 4. Verifica o status HTTP e trata a resposta
                 if (!res.ok) {
-                    // Se a requisição não for bem-sucedida (ex: erro 404, 500)
                     throw new Error(`Erro no servidor: ${res.status} ${res.statusText}`);
                 }
 
                 var json_resp = await res.json();
-                alert(json_resp); // Exibe a mensagem de sucesso ou erro retornada pelo Controller
+                alert(json_resp);
+
+                limpar_form();        // Limpa o formulário
+                listar_veiculos();    // Recarrega a lista para mostrar a alteração/inclusão
 
             } catch (erro) {
                 alert(`Falha ao salvar os dados. Detalhes: ${erro.message}`);
             }
         }
+
+        // 4. Função Deletar
+        async function deletar_dados() {
+            var id_para_deletar = parseInt(document.getElementById("idVeiculo").value);
+
+            if (id_para_deletar === 0) {
+                alert("Nenhum veículo selecionado para deletar. Por favor, selecione um na lista.");
+                return;
+            }
+
+            if (!confirm(`Tem certeza que deseja DELETAR o veículo com ID: ${id_para_deletar}?`)) {
+                return; // Se o usuário cancelar, não faz nada
+            }
+
+            var url = "/Home/DeletarVeiculo/";
+
+            try {
+                var res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-type": "application/json" },
+                    body: JSON.stringify(id_para_deletar) // Envia apenas o ID como JSON puro
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Erro no servidor: ${res.status} ${res.statusText}`);
+                }
+
+                var json_resp = await res.json();
+                alert(json_resp);
+
+                limpar_form();        // Limpa o formulário
+                listar_veiculos();    // Recarrega a lista
+
+            } catch (erro) {
+                alert(`Falha ao deletar os dados. Detalhes: ${erro.message}`);
+            }
+        }
     </script>
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

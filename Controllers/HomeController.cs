@@ -46,40 +46,6 @@ namespace usadinhosss.Controllers
             return View();
         }
 
-        public IActionResult BuscarVeiculo(String modelo) //função p/ buscar veículos no BD, por modelo ou todos se o modelo for vazio
-        {
-            String select = "";                        //variável p/ armazenar o comando SQL de seleção dos dados no BD
-            if (modelo == null || modelo.Equals(""))  //se o modelo for vazio, busca todos os veículos
-            {
-                select = "select * from veiculos";    //comando SQL p/ buscar todos os veículos no BD
-            }
-            else                                      //modelo não for vazio, busca os veículos que contenham o modelo informado
-            {
-                select = "select * from veiculos where modelo like '%" + modelo + "%'";  //comando SQL p/ buscar os veículos que contenham o modelo informado no BD
-            }
-
-            String stringConnection = "Data Source=usadinhosss.bd.db; Version = 3; New = True; Compress = True; ";  //string de conexão com o BD, usadinhosss.bd.db nome do arquivo do BD, esta na pasta do projeto.
-            SQLiteConnection sqlite_conn = new SQLiteConnection(stringConnection);    //cria a conexão com o BD
-            sqlite_conn.Open();                                                       //abre a conexão com o BD, sempre em conexões se abre e fecha
-            SQLiteCommand comandoSQL = new SQLiteCommand(select, sqlite_conn);       //cria o comando SQL para ser executado no BD
-            SQLiteDataReader dr = comandoSQL.ExecuteReader();                       //executa o comando SQL, retorna os dados selecionados do BD
-            List<Veiculo> listaVeiculos = new List<Veiculo>();                      //lista p/ armazenar os veículos retornados do BD
-
-            while (dr.Read())                                //lê os dados retornados do BD, enquanto houver dados
-            { 
-                Veiculo v = new Veiculo();                   //cria um objeto Veiculo p/ armazenar os dados do veículo
-                v.marca = dr["marca"].ToString();           //armazenar os dados do veículo retornados do BD
-                v.modelo = dr["modelo"].ToString();         //armazenar os dados do veículo retornados do BD
-                v.ano = dr["ano"].ToString();               //armazenar os dados do veículo retornados do BD
-                v.cor = dr["cor"].ToString();              //armazenar os dados do veículo retornados do BD
-                v.preco = dr["preco"].ToString();          //armazenar os dados do veículo retornados do BD
-                listaVeiculos.Add(v);                      //adiciona o veículo na lista de veículos
-
-            }
-
-            return Json(listaVeiculos);                  //retorna a lista de veículos em formato JSON
-        }
-
         [HttpPost]    // tipo POST é mais seguro do que o metodo GET
         public IActionResult inserirVeiculo([FromBody] Veiculo veiculos)  //função p/ inserir daddos no BD, 
         {                                                                 // Veiculo é a classe criada abaixo e veiculos é o nome da tabela no BD.
@@ -105,6 +71,96 @@ namespace usadinhosss.Controllers
 
             return Json(resposta);       //retorna a resposta da operação de inserção em formato JSON
 
+        }
+
+        public IActionResult BuscarVeiculo(String modelo) //função p/ buscar veículos no BD, por modelo ou todos se o modelo for vazio
+        {
+            String select = "";                        //variável p/ armazenar o comando SQL de seleção dos dados no BD
+            if (modelo == null || modelo.Equals(""))  //se o modelo for vazio, busca todos os veículos
+            {
+                select = "select * from veiculos";    //comando SQL p/ buscar todos os veículos no BD
+            }
+            else                                      //modelo não for vazio, busca os veículos que contenham o modelo informado
+            {
+                select = "select * from veiculos where modelo like '%" + modelo + "%'";  //comando SQL p/ buscar os veículos que contenham o modelo informado no BD
+            }
+
+            String stringConnection = "Data Source=usadinhosss.bd.db; Version = 3; New = True; Compress = True; ";  //string de conexão com o BD, usadinhosss.bd.db nome do arquivo do BD, esta na pasta do projeto.
+            SQLiteConnection sqlite_conn = new SQLiteConnection(stringConnection);    //cria a conexão com o BD
+            sqlite_conn.Open();                                                       //abre a conexão com o BD, sempre em conexões se abre e fecha
+            SQLiteCommand comandoSQL = new SQLiteCommand(select, sqlite_conn);       //cria o comando SQL para ser executado no BD
+            SQLiteDataReader dr = comandoSQL.ExecuteReader();                       //executa o comando SQL, retorna os dados selecionados do BD
+            List<Veiculo> listaVeiculos = new List<Veiculo>();                      //lista p/ armazenar os veículos retornados do BD
+
+            while (dr.Read())                                //lê os dados retornados do BD, enquanto houver dados
+            { 
+                Veiculo v = new Veiculo();                   //cria um objeto Veiculo p/ armazenar os dados do veículo
+                v.id = Convert.ToInt32(dr["id"]);            //Ler o id no BD p/ as funções CRUD
+                v.marca = dr["marca"].ToString();           //armazenar os dados do veículo retornados do BD
+                v.modelo = dr["modelo"].ToString();         //armazenar os dados do veículo retornados do BD
+                v.ano = dr["ano"].ToString();               //armazenar os dados do veículo retornados do BD
+                v.cor = dr["cor"].ToString();              //armazenar os dados do veículo retornados do BD
+                v.preco = dr["preco"].ToString();          //armazenar os dados do veículo retornados do BD
+                listaVeiculos.Add(v);                      //adiciona o veículo na lista de veículos
+
+            }
+
+            sqlite_conn.Close();                         //fecha a conexão com o BD, como foi aberta anteriormente, sempre se fecha
+            return Json(listaVeiculos);                  //retorna a lista de veículos em formato JSON
+        }
+
+        // Ação para Alterar Veículo
+        [HttpPost]
+        public IActionResult AlterarVeiculo([FromBody] Veiculo veiculos)
+        {
+            // Usamos parâmetros na query para evitar SQL Injection.
+            String cmdupdate = "UPDATE veiculos SET marca=@marca, modelo=@modelo, ano=@ano, cor=@cor, preco=@preco WHERE id=@id";
+
+            String stringConnection = "Data Source=usadinhosss.bd.db; Version = 3; New = True; Compress = True; ";
+            SQLiteConnection sqlite_conn = new SQLiteConnection(stringConnection);
+            sqlite_conn.Open();
+
+            SQLiteCommand comandoSQL = new SQLiteCommand(cmdupdate, sqlite_conn);
+            // Adicionando os parâmetros com os valores do objeto 'veiculos'
+            comandoSQL.Parameters.AddWithValue("@id", veiculos.id);
+            comandoSQL.Parameters.AddWithValue("@marca", veiculos.marca);
+            comandoSQL.Parameters.AddWithValue("@modelo", veiculos.modelo);
+            comandoSQL.Parameters.AddWithValue("@ano", veiculos.ano);
+            comandoSQL.Parameters.AddWithValue("@cor", veiculos.cor);
+            comandoSQL.Parameters.AddWithValue("@preco", veiculos.preco);
+
+            int qtd_linhas_alteradas = comandoSQL.ExecuteNonQuery();
+
+            string resposta = (qtd_linhas_alteradas > 0)
+                ? "Dados alterados com sucesso!!!"
+                : "Não foi possível alterar o veículo (ID não encontrado ou erro!!!)";
+
+            sqlite_conn.Close();
+            return Json(resposta);
+        }
+
+        // Ação para Deletar Veículo
+        [HttpPost] // O POST é mais seguro e recomendado para ações que modificam dados
+        public IActionResult DeletarVeiculo([FromBody] int id) // Espera um JSON contendo apenas o ID
+        {
+            // Usando parâmetro para segurança.
+            String cmddelete = "DELETE FROM veiculos WHERE id = @id";
+
+            String stringConnection = "Data Source=usadinhosss.bd.db; Version = 3; New = True; Compress = True; ";
+            SQLiteConnection sqlite_conn = new SQLiteConnection(stringConnection);
+            sqlite_conn.Open();
+
+            SQLiteCommand comandoSQL = new SQLiteCommand(cmddelete, sqlite_conn);
+            comandoSQL.Parameters.AddWithValue("@id", id); // Passa o ID para o comando
+
+            int qtd_linhas_deletadas = comandoSQL.ExecuteNonQuery();
+
+            string resposta = (qtd_linhas_deletadas > 0)
+                ? "Veículo deletado com sucesso!!!"
+                : "Não foi possível deletar o veículo (ID não encontrado ou erro!!!)";
+
+            sqlite_conn.Close();
+            return Json(resposta);
         }
 
 
@@ -155,7 +211,7 @@ namespace usadinhosss.Controllers
 
         public class Veiculo     //classe p/ representar os dados do veículo a serem inseridos no BD, criado na função inserirVeiculo
         {
-            public int Id { get; set; }   //(deve ser 'Id' com 'I' maiúsculo para corresponder ao JSON)p/ inserir o id do veículo, chave primária no BD
+            public int id { get; set; }   //Add Id p/ ser usada em list, alt e del,nome minúsc mantido, mas o tipo é int 
             public String marca { get; set; }  //abaixo são os dados p/ armazenar no BD na tabela veiculos
             public String modelo { get; set; }
             public String ano { get; set; }
