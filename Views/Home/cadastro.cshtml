@@ -9,9 +9,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Cadastro de Veiculos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        /* CSS para garantir altura total e evitar que o conteúdo fique atrás de um rodapé */
+        html, body {
+            height: 100%;
+        }
+    </style>
 </head>
 <body onload="listar_veiculos()">
-    <div class="container mt-5">
+    <div class="container-fluid mt-5">
         <h2 class="mb-4">Manutenção de Veículos 🚗</h2>
         <div class="alert alert-info" id="mensagem_id" role="alert" style="display:none;">
             Selecionado Veículo ID: <span id="id_selecionado"></span>
@@ -58,10 +64,11 @@
                 <input type="text" class="form-control" id="preco" placeholder="Digite o preço" required />
             </div>
 
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 mb-3">
                 <button type="button" class="btn btn-success" onclick="salvar_dados()">Salvar / Alterar</button>
                 <button type="button" class="btn btn-danger" onclick="deletar_dados()">Deletar Selecionado</button>
                 <button type="button" class="btn btn-secondary" onclick="limpar_form()">Novo Cadastro</button>
+                <button type="button" class="btn btn-primary" onclick="window.location.href='/Home/Index'">Sair</button>
             </div>
         </form>
     </div>
